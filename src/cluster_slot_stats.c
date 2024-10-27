@@ -136,6 +136,10 @@ static int canAddNetworkBytesOut(client *c) {
     return server.cluster_slot_stats_enabled && server.cluster_enabled && c->slot != -1;
 }
 
+static int canPrefetchMemory(int slot) {
+    return server.cluster_slot_stats_enabled && slot >= 0 && slot < CLUSTER_SLOTS;
+}
+
 /* Accumulates egress bytes upon sending RESP responses back to user clients. */
 void clusterSlotStatsAddNetworkBytesOutForUserClient(client *c) {
     if (!canAddNetworkBytesOut(c)) return;
@@ -267,6 +271,11 @@ void clusterSlotStatsAddNetworkBytesInForUserClient(client *c) {
     }
 
     server.cluster->slot_stats[c->slot].network_bytes_in += c->net_input_bytes_curr_cmd;
+}
+
+void clusterSlotStatsMemoryPrefetch(int slot) {
+    if (!canPrefetchMemory(slot)) return;
+    valkey_prefetch(&server.cluster->slot_stats[slot]);
 }
 
 void clusterSlotStatsCommand(client *c) {
