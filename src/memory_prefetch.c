@@ -10,6 +10,7 @@
 #include "memory_prefetch.h"
 #include "server.h"
 #include "dict.h"
+#include "cluster_slot_stats.h"
 
 /* Forward declarations of dict.c functions */
 dictEntry *dictGetNext(const dictEntry *de);
@@ -393,6 +394,10 @@ int addCommandToBatchAndProcessIfFull(client *c) {
             batch->key_count++;
         }
         getKeysFreeResult(&result);
+
+        if (server.cluster_enabled && num_keys) { 
+            clusterSlotStatsMemoryPrefetch(c->slot);
+        }
     }
 
     /* If the batch is full, process it.
