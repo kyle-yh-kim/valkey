@@ -7091,3 +7091,7 @@ int clusterDecodeOpenSlotsAuxField(int rdbflags, sds s) {
 
     return C_OK;
 }
+
+int isValidSlot(int slot) {
+    return (slot >= 0 && slot < CLUSTER_SLOTS);
+}

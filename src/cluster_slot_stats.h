@@ -21,3 +21,6 @@ void clusterSlotStatsAddNetworkBytesOutForUserClient(client *c);
 void clusterSlotStatsIncrNetworkBytesOutForReplication(long long len);
 void clusterSlotStatsDecrNetworkBytesOutForReplication(long long len);
 void clusterSlotStatsAddNetworkBytesOutForShardedPubSubInternalPropagation(client *c, int slot);
+
+/* Memory pre-fetch. */
+void clusterSlotStatsMemoryPrefetch(int slot);

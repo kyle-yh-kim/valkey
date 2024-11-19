@@ -140,7 +140,7 @@ static int canAddNetworkBytesOut(client *c) {
 void clusterSlotStatsAddNetworkBytesOutForUserClient(client *c) {
     if (!canAddNetworkBytesOut(c)) return;
 
-    serverAssert(c->slot >= 0 && c->slot < CLUSTER_SLOTS);
+    serverAssert(isValidSlot(c->slot));
     server.cluster->slot_stats[c->slot].network_bytes_out += c->net_output_bytes_curr_cmd;
 }
 
@@ -149,7 +149,7 @@ static void clusterSlotStatsUpdateNetworkBytesOutForReplication(long long len) {
     client *c = server.current_client;
     if (c == NULL || !canAddNetworkBytesOut(c)) return;
 
-    serverAssert(c->slot >= 0 && c->slot < CLUSTER_SLOTS);
+    serverAssert(isValidSlot(c->slot));
     serverAssert(nodeIsPrimary(server.cluster->myself));
     if (len < 0) serverAssert(server.cluster->slot_stats[c->slot].network_bytes_out >= (uint64_t)llabs(len));
     server.cluster->slot_stats[c->slot].network_bytes_out += (len * listLength(server.replicas));
@@ -185,7 +185,7 @@ void clusterSlotStatsAddNetworkBytesOutForShardedPubSubInternalPropagation(clien
         return;
     }
 
-    serverAssert(c->slot >= 0 && c->slot < CLUSTER_SLOTS);
+    serverAssert(isValidSlot(c->slot));
     server.cluster->slot_stats[c->slot].network_bytes_out += c->net_output_bytes_curr_cmd;
 
     /* For sharded pubsub, the client's network bytes metrics must be reset here,
@@ -230,7 +230,7 @@ static int canAddCpuDuration(client *c) {
 void clusterSlotStatsAddCpuDuration(client *c, ustime_t duration) {
     if (!canAddCpuDuration(c)) return;
 
-    serverAssert(c->slot >= 0 && c->slot < CLUSTER_SLOTS);
+    serverAssert(isValidSlot(c->slot));
     server.cluster->slot_stats[c->slot].cpu_usec += duration;
 }
 
@@ -267,6 +267,13 @@ void clusterSlotStatsAddNetworkBytesInForUserClient(client *c) {
     }
 
     server.cluster->slot_stats[c->slot].network_bytes_in += c->net_input_bytes_curr_cmd;
+}
+
+void clusterSlotStatsMemoryPrefetch(int slot) {
+    if (!server.cluster_slot_stats_enabled) return;
+
+    serverAssert(isValidSlot(slot));
+    valkey_prefetch(&server.cluster->slot_stats[slot]);
 }
 
 void clusterSlotStatsCommand(client *c) {

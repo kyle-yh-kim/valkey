@@ -111,6 +111,7 @@ void deleteCachedResponseClient(client *recording_client);
 void clearCachedClusterSlotsResponse(void);
 unsigned int countKeysInSlot(unsigned int hashslot);
 int getSlotOrReply(client *c, robj *o);
+int isValidSlot(int slot);
 
 /* functions with shared implementations */
 int clusterNodeIsMyself(clusterNode *n);
